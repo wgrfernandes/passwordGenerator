@@ -2,6 +2,10 @@ const inputEl = document.querySelector("#password");
 const upperCaseCheckEl = document.querySelector("#uppercase-check");
 const numberCheckEl = document.querySelector("#number-check");
 const symbolCheckEl = document.querySelector("#symbol-check");
+const regenerate = document.getElementById(".renew");
+const securityIndicatorBarEl = document.querySelector(
+  "#security-indicator-bar"
+);
 
 let passwordLength = 16;
 
@@ -32,6 +36,58 @@ function generatePassword() {
   }
 
   inputEl.value = password;
+  calculateQuality();
+  calculateFontSize();
+}
+
+function calculateQuality() {
+  const percent = Math.round(
+    (passwordLength / 64) * 100 * 0.25 +
+      (upperCaseCheckEl.checked ? 25 : 0) +
+      (numberCheckEl.checked ? 25 : 0) +
+      (symbolCheckEl.checked ? 25 : 0)
+  );
+  securityIndicatorBarEl.style.width = `${percent}%`;
+
+  if (percent > 69) {
+    securityIndicatorBarEl.classList.remove("critical");
+    securityIndicatorBarEl.classList.remove("warning");
+    securityIndicatorBarEl.classList.add("safe");
+  } else if (percent > 50) {
+    securityIndicatorBarEl.classList.remove("critical");
+    securityIndicatorBarEl.classList.remove("safe");
+    securityIndicatorBarEl.classList.add("warning");
+  } else {
+    securityIndicatorBarEl.classList.remove("safe");
+    securityIndicatorBarEl.classList.remove("warning");
+    securityIndicatorBarEl.classList.add("critical");
+  }
+
+  if (percent >= 100) {
+    securityIndicatorBarEl.classList.add("completed");
+  } else {
+    securityIndicatorBarEl.classList.remove("completed");
+  }
+}
+
+function calculateFontSize() {
+  if (passwordLength > 45) {
+    inputEl.classList.remove("font-sm");
+    inputEl.classList.remove("font-xs");
+    inputEl.classList.add("font-xxs");
+  } else if (passwordLength > 32) {
+    inputEl.classList.remove("font-xxs");
+    inputEl.classList.remove("font-sm");
+    inputEl.classList.add("font-xs");
+  } else if (passwordLength > 22) {
+    inputEl.classList.remove("font-xs");
+    inputEl.classList.remove("font-xxs");
+    inputEl.classList.add("font-sm");
+  } else {
+    inputEl.classList.remove("font-xs");
+    inputEl.classList.remove("font-xxs");
+    inputEl.classList.remove("font-sm");
+  }
 }
 
 function copy() {
@@ -50,5 +106,6 @@ symbolCheckEl.addEventListener("click", generatePassword);
 
 document.querySelector("#copy-1").addEventListener("click", copy);
 document.querySelector("#copy-2").addEventListener("click", copy);
+document.querySelector("#renew").addEventListener("click", generatePassword);
 
 generatePassword();
